@@ -25,3 +25,7 @@ doc/source/__pycache__/
 *.duckdb
 *.duckdb.wal
 _smoke_*.das
+# DuckDB runtime library (copied beside the .shared_module by the build)
+duckdb.dll
+libduckdb.so
+libduckdb.dylib

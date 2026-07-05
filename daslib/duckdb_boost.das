@@ -12,6 +12,7 @@ require strings
 require daslib/sql public
 require daslib/sql_boost public
 require daslib/sql_provider
+require daslib/templates
 
 //! DuckDB runtime surface for the `_sql` machinery (see
 //! modules/dasSQLITE/PROVIDER_CONTRACT.md in the daslang repo; `sqlite/sqlite_boost`
@@ -39,12 +40,19 @@ def private _boost_register_sql_providers {
 
 // ===== High-level API: runner, RAII, exec =====
 
+struct private TxnState {
+    // transaction nesting depth for this connection (DuckDB has no savepoints);
+    // heap cell so every by-value copy of the runner shares it
+    depth : int
+}
+
 struct SqlRunner {
     //! Owns a DuckDB database + connection pair. Closed by `finalize` on
     //! `var inscope` scope exit. `schema_name` reserved for attached catalogs.
     duck_db : duckdb_database
     conn : duckdb_connection
     schema_name : string
+    txn : TxnState?
 }
 
 def finalize(var db : SqlRunner) {
@@ -56,6 +64,12 @@ def finalize(var db : SqlRunner) {
     if (db.duck_db != null) {
         duckdb_close(unsafe(addr(db.duck_db)))
         db.duck_db = null
+    }
+    if (db.txn != null) {
+        unsafe {
+            delete db.txn
+        }
+        db.txn = null
     }
 }
 
@@ -79,6 +93,7 @@ def try_open_duckdb(path : string) : Result<SqlRunner, string> {
         db.duck_db = null
         return err("duckdb_connect(\"{path}\") failed", type<SqlRunner>)
     }
+    db.txn = new TxnState()
     return move_ok(db, type<string>)
 }
 
@@ -248,33 +263,33 @@ def sql_bind_to_stmt(var stmt : DuckStmt?; idx : int; v : auto(TT)) : void {
 // --- read direction ---
 
 [unused_argument(witness)]
-def sql_read_witness(var stmt : DuckStmt?; col : int; witness : int64) : int64 {
+def sql_read_witness(stmt : DuckStmt?; col : int; witness : int64) : int64 {
     return duckdb_value_int64(stmt.res, uint64(col), stmt.row)
 }
 
 [unused_argument(witness)]
-def sql_read_witness(var stmt : DuckStmt?; col : int; witness : double) : double {
+def sql_read_witness(stmt : DuckStmt?; col : int; witness : double) : double {
     return duckdb_value_double(stmt.res, uint64(col), stmt.row)
 }
 
 [unused_argument(witness)]
-def sql_read_witness(var stmt : DuckStmt?; col : int; witness : string) : string {
+def sql_read_witness(stmt : DuckStmt?; col : int; witness : string) : string {
     return duckdb_column_text_(stmt.res, col, stmt.row)
 }
 
 [unused_argument(witness)]
-def sql_read_witness(var stmt : DuckStmt?; col : int; witness : array<uint8>) : array<uint8> {
+def sql_read_witness(stmt : DuckStmt?; col : int; witness : array<uint8>) : array<uint8> {
     return <- duckdb_column_blob_(stmt.res, col, stmt.row)
 }
 
 [unused_argument(stmt, col, witness)]
-def sql_read_witness(var stmt : DuckStmt?; col : int; witness : auto(SS)) : SS {
+def sql_read_witness(stmt : DuckStmt?; col : int; witness : auto(SS)) : SS {
     concept_assert(false, "sql_bind must return one of int64 / double / string / array<uint8>")
     return default<SS>
 }
 
 [unused_argument(t)]
-def read_via_adapter(var stmt : DuckStmt?; col : int; t : type<$Option<auto(TT)>>) : Option<TT -const -#> {
+def read_via_adapter(stmt : DuckStmt?; col : int; t : type<$Option<auto(TT)>>) : Option<TT -const -#> {
     //! ``Option<T>`` overload: NULL cell → ``none``, otherwise read the inner ``T``
     //! via the generic ``read_via_adapter`` and wrap in ``some``.
     if (duckdb_value_is_null(stmt.res, uint64(col), stmt.row)) return none(type<TT -const -#>)
@@ -282,7 +297,7 @@ def read_via_adapter(var stmt : DuckStmt?; col : int; t : type<$Option<auto(TT)>
 }
 
 [unused_argument(t)]
-def read_via_adapter(var stmt : DuckStmt?; col : int; t : type<auto(TT)>) : TT {
+def read_via_adapter(stmt : DuckStmt?; col : int; t : type<auto(TT)>) : TT {
     //! Reads column as ``_::sql_bind(default<TT>)``'s storage primitive, then materializes ``TT``
     //! via ``_::sql_extract``. Primitive type is resolved at compile time — no runtime adapter call.
     return _::sql_extract(
@@ -550,11 +565,11 @@ def private build_duckdb_create_table_sql(table_name : string; cols : array<Colu
     }
     let has_auto_pk = pk_count == 1 && cols[auto_pk].data_type == SqlType.Integer
     let seq = sql_quote_lit(duckdb_pk_seq_name(table_name))
-    var seq_sql = ""
+    var seq_ddl = ""
     if (has_auto_pk) {
-        seq_sql = "CREATE SEQUENCE IF NOT EXISTS {sql_quote_id(duckdb_pk_seq_name(table_name))}"
+        seq_ddl = "CREATE SEQUENCE IF NOT EXISTS {sql_quote_id(duckdb_pk_seq_name(table_name))}"
     }
-    let table_sql = build_string() $(var w) {
+    let table_ddl = build_string() $(var w) {
         w |> write("CREATE TABLE IF NOT EXISTS {sql_quote_id(table_name)} (")
         for (i in range(length(cols))) {
             if (i > 0) {
@@ -589,7 +604,7 @@ def private build_duckdb_create_table_sql(table_name : string; cols : array<Colu
         }
         w |> write(")")
     }
-    return (seq_sql => table_sql)
+    return (seq_sql = seq_ddl, table_sql = table_ddl)
 }
 
 [unused_argument(t), template(t)]
@@ -767,7 +782,11 @@ def try_insert(db : SqlRunner; rows : array<auto(TT)>) : Result<int64, string> {
     for (i in 1..length(rows)) {
         if (_::_sql_pk_is_unset(rows[i]) != pk_unset) return err("insert: rows mix PK-set and PK-unset (row 0 vs row {i}); partition the array before calling insert", type<int64>)
     }
-    let began = (db |> try_exec("BEGIN TRANSACTION")) |> is_none
+    let began = !(db |> in_transaction())
+    if (began) {
+        let be = db |> try_exec("BEGIN TRANSACTION")
+        if (be |> is_some) return err(be |> unwrap, type<int64>)
+    }
     var last_id = int64(0)
     for (row in rows) {
         let r = db |> try_insert(row)
@@ -856,9 +875,21 @@ def delete_by_id(db : SqlRunner; t : type<auto(TT)>; id : auto(K)) : int {
 }
 
 // ===== Transactions =====
-// DuckDB has no savepoints; nesting composes by JOINING the ambient transaction:
-// BEGIN is probed — if it fails (already in a txn) the scope is a passthrough and
-// the outermost owner commits/rolls back.
+// DuckDB has no savepoints, and a failed nested BEGIN ABORTS the ambient transaction —
+// so nesting is tracked on the runner (TxnState heap cell shared by runner copies):
+// only depth 0 emits BEGIN/COMMIT/ROLLBACK, inner scopes join the outer one.
+
+def in_transaction(db : SqlRunner) : bool {
+    //! True inside a `with_transaction` / `try_transaction` scope on this connection.
+    //! (Raw ``exec("BEGIN ...")`` bypasses the tracker — don't mix the two styles.)
+    return db.txn != null && db.txn.depth > 0
+}
+
+def private txn_state(db : SqlRunner) : TxnState? {
+    // interior mutability: the field's declared type is mutable; only the runner
+    // handle's const flows onto it, so the strip is not an optimizer lie
+    return unsafe(reinterpret<TxnState? -const>(db.txn))
+}
 
 def private txn_best_effort_rollback(db : SqlRunner) : void {
     // Swallow rollback errors so the original failure reaches the caller intact.
@@ -866,16 +897,23 @@ def private txn_best_effort_rollback(db : SqlRunner) : void {
 }
 
 def with_transaction(db : SqlRunner; blk : block<() : void>) : void {
-    //! Wraps ``blk`` in a transaction; nested calls join the outer one. ROLLBACK fires
-    //! on early return (block ``return`` unwinds through ``finally``); a panic skips
-    //! ``finally`` by design — the open txn discards when the connection closes.
-    let began = (db |> try_exec("BEGIN TRANSACTION")) |> is_none
+    //! Wraps ``blk`` in a transaction; nested calls join the outer one (DuckDB has no
+    //! savepoints). ROLLBACK fires on early return (block ``return`` unwinds through
+    //! ``finally``); a panic skips ``finally`` by design — the open txn discards when
+    //! the connection closes.
+    var ts = txn_state(db)
+    let depth = ts.depth
+    if (depth == 0) {
+        db |> exec("BEGIN TRANSACTION")
+    }
+    ts.depth = depth + 1
     var success : bool
     {
         invoke(blk)
         success = true
     } finally {
-        if (began) {
+        ts.depth = depth
+        if (depth == 0) {
             if (success) {
                 let commit_err = db |> try_exec("COMMIT")
                 if (commit_err |> is_some) {
@@ -890,19 +928,26 @@ def with_transaction(db : SqlRunner; blk : block<() : void>) : void {
 }
 
 def try_transaction(db : SqlRunner; blk : block<() : void>) : SqlError {
-    //! Non-panic variant. ``none`` on commit success, ``some(errmsg)`` on COMMIT failure.
-    //! Block panics still skip ``finally`` (panic is fatal by design).
-    let began = (db |> try_exec("BEGIN TRANSACTION")) |> is_none
+    //! Non-panic variant. ``none`` on commit success, ``some(errmsg)`` on BEGIN/COMMIT
+    //! failure. Block panics still skip ``finally`` (panic is fatal by design).
+    var ts = txn_state(db)
+    let depth = ts.depth
+    if (depth == 0) {
+        let begin_err = db |> try_exec("BEGIN TRANSACTION")
+        if (begin_err |> is_some) return begin_err
+    }
+    ts.depth = depth + 1
     var success : bool
     {
         invoke(blk)
         success = true
     } finally {
-        if (began && !success) {
+        ts.depth = depth
+        if (depth == 0 && !success) {
             txn_best_effort_rollback(db)
         }
     }
-    if (!began) return none(type<string>)
+    if (depth != 0) return none(type<string>)
     let commit_err = db |> try_exec("COMMIT")
     if (commit_err |> is_some) {
         txn_best_effort_rollback(db)
