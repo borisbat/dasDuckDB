@@ -14,6 +14,12 @@ namespace das {
 
 void Module_dasDUCKDB::initMain() {
 
+    addExtern<DAS_BIND_FUN(duckdb_register_das_function)>(*this,lib,"duckdb_register_das_function",
+        SideEffects::worstDefault, "duckdb_register_das_function")
+            ->args({"conn","name","fn","nArgs",
+                    "tag0","tag1","tag2","tag3",
+                    "retTag","deterministic","context","at"});
+
     for ( auto & pfn : this->functions.each() ) {
         // fix up everything returning uint8? into returning string# and make it an unsafe operation.
         // DuckDB C API strings come in two flavors: internal (duckdb_column_name, *_error — valid

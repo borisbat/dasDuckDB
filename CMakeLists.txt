@@ -71,6 +71,7 @@ file(GLOB DAS_DUCKDB_FUNC_SRC "${DAS_DUCKDB_DIR}/src/dasDUCKDB.func_*.cpp")
 SET(DAS_DUCKDB_BIND_SRC
     ${DAS_DUCKDB_DIR}/src/dasDUCKDB.cpp
     ${DAS_DUCKDB_DIR}/src/dasDUCKDB.main.cpp
+    ${DAS_DUCKDB_DIR}/src/dasDUCKDB.userfn.cpp
     ${DAS_DUCKDB_FUNC_SRC}
 )
 
