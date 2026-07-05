@@ -16,6 +16,7 @@ require daslib/profiler_boost
 // prose-side in the boost intro.
 require duckdb/duckdb_boost
 require duckdb/duckdb_provider
+require duckdb/duckdb_migrate
 
 def document_module_duckdb_boost() {
     var mod = find_module("duckdb_boost")
@@ -26,7 +27,6 @@ def document_module_duckdb_boost() {
         group_by_regex("Transactions", mod, %regex~^(with_transaction|try_transaction)$%%),
         group_by_regex("_sql runtime helpers", mod, %regex~^(try_)?run_(select|select_one|select_one_opt|each_select|dml|dml_returning)$%%),
         group_by_regex("Storage-class bridge", mod, %regex~^(sql_bind_to_stmt|sql_read_witness|read_via_adapter)$%%),
-        group_by_regex("[sql_function] plumbing", mod, %regex~^(_add_sql_function_thunk|_try_register_function_check_rc)$%%),
         hide_group(group_by_regex("Internal", mod, %regex~^(_|priv_|duckdb_column_|duckdb_pk_seq_|build_duckdb_|ignore_sql_|txn_).*%%))
     )
     document("duckdb_boost — runner, CRUD, transactions, _sql runtime", mod, "duckdb_boost.rst", groups)
@@ -41,6 +41,15 @@ def document_module_duckdb_provider() {
         hide_group(group_by_regex("Internal", mod, %regex~^(_|priv_).*%%))
     )
     document("duckdb_provider — SqlProviderInfo registration shim", mod, "duckdb_provider.rst", groups)
+}
+
+def document_module_duckdb_migrate() {
+    var mod = find_module("duckdb_migrate")
+    var groups <- array<DocGroup>(
+        group_by_regex("Convenience", mod, %regex~^with_latest_duckdb$%%),
+        hide_group(group_by_regex("Engine glue hooks (see PROVIDER_CONTRACT §Migrations)", mod, %regex~^_migration_.*%%))
+    )
+    document("duckdb_migrate — migrations glue over daslib/sql_migrate", mod, "duckdb_migrate.rst", groups)
 }
 
 // dasDuckDB repo root, derived from a loaded module's own source path so docs
@@ -63,5 +72,6 @@ def main {
 
         document_module_duckdb_boost()
         document_module_duckdb_provider()
+        document_module_duckdb_migrate()
     }
 }
