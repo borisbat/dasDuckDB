@@ -1,0 +1,99 @@
+name: Conformance tests
+
+# Runs the SQL provider conformance suite (tests/sql_conformance — the shared
+# suite from the daslang repo with the shim swapped to DuckDB) against a fresh
+# daslang build. Mirrors dasImguiImplot's tests.yml minus the GUI stack: no
+# display server, no dasImgui dependency — just daslang + this module.
+#
+# fail-fast:false so all OSes report. Windows is deferred (mirrors the
+# dasImguiImplot matrix note: the daslang build fastfails on the CI runner
+# only; the module builds and the suite passes locally under MSVC). The
+# Windows-only steps stay in place gated on windows-latest, so re-enabling is
+# a one-line matrix change.
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    runs-on: ${{ matrix.os }}
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: "Checkout daslang"
+        uses: actions/checkout@v4
+        with:
+          repository: GaijinEntertainment/daScript
+          path: daslang-src
+          ref: master
+
+      - name: "Checkout dasDuckDB"
+        uses: actions/checkout@v4
+        with:
+          path: dasDuckDB
+
+      - name: "Install system dependencies (macOS)"
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install bison
+          echo "/opt/homebrew/opt/bison/bin" >> "$GITHUB_PATH"
+
+      - name: "Install CMake and Ninja"
+        uses: lukka/get-cmake@latest
+
+      - name: "Set up sccache"
+        uses: mozilla-actions/sccache-action@v0.0.9
+
+      - name: "Set up MSVC environment (Windows)"
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: "Build daslang"
+        working-directory: daslang-src
+        run: |
+          set -eux
+          cmake --no-warn-unused-cli -B./build \
+            -DCMAKE_BUILD_TYPE:STRING=Release \
+            -DDAS_LLVM_DISABLED=ON \
+            -DDAS_HV_DISABLED=ON \
+            -DDAS_GLFW_DISABLED=ON \
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -G Ninja
+          cmake --build ./build --parallel --target daslang
+          sccache --show-stats
+          echo "BIN_DIR=bin" >> "$GITHUB_ENV"
+
+      - name: "daspkg install dasDuckDB (global)"
+        # cmake_build downloads the pinned prebuilt libduckdb and builds
+        # dasModuleDuckDB.shared_module (the runtime library rides beside it).
+        working-directory: daslang-src
+        run: |
+          set -eux
+          ${BIN_DIR}/daslang utils/daspkg/main.das -- install ../dasDuckDB --global
+
+      - name: "Run SQL provider conformance suite"
+        working-directory: daslang-src
+        run: |
+          set -eux
+          ${BIN_DIR}/daslang dastest/dastest.das -- \
+            --test modules/dasDuckDB/tests/sql_conformance \
+            --timeout 300

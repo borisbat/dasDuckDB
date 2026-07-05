@@ -201,7 +201,7 @@ def exec(db : SqlRunner; sql : string; arg0 : auto(A0); arg1 : auto(A1); arg2 : 
 
 def private duckdb_column_text_(res : duckdb_result?; col : int; row : uint64) : string {
     // context-heap copy of a (col,row) VARCHAR cell; frees DuckDB's malloc'd copy
-    let p = unsafe(duckdb_value_varchar(res, uint64(col), row))
+    let p = duckdb_value_varchar(res, uint64(col), row)
     if (p == "") {
         return ""
     }
@@ -825,6 +825,7 @@ def insert(db : SqlRunner; rows : array<auto(TT)>) : int64 {
     return r |> unwrap
 }
 
+[unused_argument(e)]
 def private ignore_sql_error_(e : SqlError) : void {
 }
 

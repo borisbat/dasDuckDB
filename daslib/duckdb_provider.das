@@ -45,7 +45,7 @@ def duckdb_decl_to_sql_type(decl_type : string) : SqlType {
 
 def private _duck_text_cell(res : duckdb_result?; col, row : uint64) : string {
     // context-heap copy of a malloc'd varchar cell
-    let p = unsafe(duckdb_value_varchar(res, col, row))
+    let p = duckdb_value_varchar(res, col, row)
     if (p == "") {
         return ""
     }
