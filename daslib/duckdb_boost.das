@@ -782,6 +782,40 @@ def insert(db : SqlRunner; row : auto(TT)) : int64 {
     return r |> unwrap
 }
 
+def try_insert(db : SqlRunner; row : auto(TT); name : string) : Result<int64, string> {
+    //! Inserts a single row into table identifier ``name`` instead of T's own ``[sql_table(name=...)]``.
+    //! Used during a struct_convert rebuild to write into the staging table before the rename swap.
+    //! Same PK semantics as ``try_insert(row)`` — but note a staging table made from the generated
+    //! DDL has no backing sequence, so pk-unset rows only work against T's own table.
+    let pk_unset = _::_sql_pk_is_unset(row)
+    let base_sql = (pk_unset
+        ? _::_sql_insert_no_pk_sql(default<TT>, name)
+        : _::_sql_insert_with_pk_sql(default<TT>, name))
+    let pk_name = _single_int_pk_name(_::_sql_column_info(default<TT>))
+    if (empty(pk_name)) {
+        let r = db |> try_step_dml(base_sql, $(var stmt : DuckStmt?) {
+            _::_sql_bind_row(stmt, row, !pk_unset)
+        }, "insert")
+        if (r |> is_err) return err(r |> unwrap_err, type<int64>)
+        return ok(int64(0), type<string>)
+    }
+    let sql = "{base_sql} RETURNING {sql_quote_id(pk_name)}"
+    return <- db |> try_one_row(sql, $(var stmt : DuckStmt?) {
+        _::_sql_bind_row(stmt, row, !pk_unset)
+    }, $(var ds : DuckStmt?) : int64 {
+        return duckdb_value_int64(ds.res, 0ul, ds.row)
+    }, "insert")
+}
+
+def insert(db : SqlRunner; row : auto(TT); name : string) : int64 {
+    //! Strict variant of ``try_insert(row, name)``. Panics with the DuckDB errmsg on failure.
+    let r = db |> try_insert(row, name)
+    if (r |> is_err) {
+        panic(r |> unwrap_err)
+    }
+    return r |> unwrap
+}
+
 def try_insert(db : SqlRunner; rows : array<auto(TT)>) : Result<int64, string> {
     //! Batched INSERT inside a single transaction (joins an ambient one — DuckDB has
     //! no savepoints). All rows must agree on PK presence. ``Ok(last pk)`` on success.
@@ -964,185 +998,27 @@ def try_transaction(db : SqlRunner; blk : block<() : void>) : SqlError {
     return commit_err
 }
 
-// ===== [sql_function] — auto-registered DuckDB scalar UDF, visible in `_sql` chains =====
-// Mirror of sqlite_boost's rail: the SqlFnTag marshaling contract is shared with
-// src/dasDUCKDB.userfn.cpp; the `sql_function` annotation NAME is what
-// daslib/sql_linq recognizes for chain emission (provider-agnostic).
-
-enum private SqlFnTag : uint8 {
-    Int = uint8(0)
-    Int64 = uint8(1)
-    Float = uint8(2)
-    Double = uint8(3)
-    Bool = uint8(4)
-    String = uint8(5)
-}
-
-struct private SqlFunctionThunk {
-    name : string
-    nArgs : int
-    install : lambda<(db : SqlRunner) : SqlError>
-}
-
-// Populated by [init] thunks; replayed on every try_open_duckdb.
-var private sql_function_registry : array<SqlFunctionThunk>
-
-def _add_sql_function_thunk(name : string; nArgs : int;
-                            var install : lambda<(db : SqlRunner) : SqlError>) : void {
-    //! Public entry point used by ``[sql_function]``-generated ``[init]`` blocks
-    //! to append a registration thunk to ``sql_function_registry``.
-    var entry <- SqlFunctionThunk(name = name, nArgs = nArgs, install <- install)
-    sql_function_registry |> emplace(entry)
-}
+// ===== [sql_function] install loop — replay the neutral daslib/sql_boost queue =====
+// The annotation lives in daslib/sql_boost (provider-neutral, type-erased queue); the
+// SqlFnTag marshaling contract is shared with src/dasDUCKDB.userfn.cpp. `directonly`
+// has no DuckDB equivalent — ignored at install.
 
 def private _install_sql_function_registry(db : SqlRunner) : SqlError {
-    var seen : table<string; bool>
-    for (thunk in sql_function_registry) {
-        let key = "{thunk.name}/{thunk.nArgs}"
-        if (key_exists(seen, key)) return some("[sql_function] duplicate registration: '{thunk.name}' with {thunk.nArgs} args is tagged in more than one place")
-        seen |> insert(key, true)
-        let err = invoke(thunk.install, db)
-        if (err |> is_some) return err
+    let dup = sql_function_duplicate_error()
+    if (dup |> is_some) {
+        return dup
     }
-    return none(type<string>)
-}
-
-def _try_register_function_check_rc(db : SqlRunner; name : string; fn : auto(FN);
-                                    nArgs : int;
-                                    tag0 : uint8; tag1 : uint8; tag2 : uint8; tag3 : uint8;
-                                    retTag : uint8; deterministic : bool; directonly : bool) : SqlError {
-    //! Runtime tail of the ``[sql_function]`` install loop. ``directonly`` is accepted
-    //! for annotation-surface parity but has no DuckDB equivalent — ignored.
-    let rc = duckdb_register_das_function(db.conn, name, fn, nArgs,
-        tag0, tag1, tag2, tag3,
-        retTag, deterministic)
-    if (rc != 0) return some("[sql_function]('{name}') registration failed")
-    return none(type<string>)
-}
-
-[macro_function]
-def private sql_fn_tag_for_type(td : TypeDeclPtr) : tuple<tag : uint8; ok : bool> {
-    if (td == null || td.baseType == Type.tFixedArray) return (tag = uint8(0), ok = false)
-    if (td.baseType == Type.tInt) return (tag = uint8(SqlFnTag.Int), ok = true)
-    if (td.baseType == Type.tInt64) return (tag = uint8(SqlFnTag.Int64), ok = true)
-    if (td.baseType == Type.tFloat) return (tag = uint8(SqlFnTag.Float), ok = true)
-    if (td.baseType == Type.tDouble) return (tag = uint8(SqlFnTag.Double), ok = true)
-    if (td.baseType == Type.tBool) return (tag = uint8(SqlFnTag.Bool), ok = true)
-    if (td.baseType == Type.tString) return (tag = uint8(SqlFnTag.String), ok = true)
-    return (tag = uint8(0), ok = false)
-}
-
-def private _is_valid_sql_function_name(s : string) : bool {
-    // unquoted identifier shape: [A-Za-z_][A-Za-z0-9_]* — anything else would need quoting in emitted SQL
-    if (empty(s)) return false
-    var ok = true
-    peek_data(s) $(arr) {
-        let c0 = int(arr[0])
-        if (!(is_alpha(c0) || c0 == '_')) {
-            ok = false
+    var install_err : SqlError = none(type<string>)
+    for_each_sql_function() $(e) {
+        if (install_err |> is_some) {
             return
         }
-        for (i in range(1, length(arr))) {
-            let c = int(arr[i])
-            if (!(is_alnum(c) || c == '_')) {
-                ok = false
-                return
-            }
+        let rc = duckdb_register_das_function(db.conn, e.name, e.fn, e.nArgs,
+            e.tag0, e.tag1, e.tag2, e.tag3,
+            e.retTag, e.deterministic)
+        if (rc != 0) {
+            install_err = some("[sql_function]('{e.name}') registration failed")
         }
     }
-    return ok
-}
-
-[function_macro(name="sql_function")]
-class SqlFunctionMacro : AstFunctionAnnotation {
-    //! Marks a daslang function as a DuckDB scalar UDF: registered against every opened
-    //! connection, and emitted as ``<name>(args)`` inside ``_sql(...)`` chains rather than
-    //! bound at compile time. Optional args: ``name``, ``deterministic``, ``directonly``
-    //! (accepted for cross-provider annotation parity; no DuckDB equivalent).
-    def override apply(var func : FunctionPtr; var group : ModuleGroup;
-                       args : AnnotationArgumentList; var errors : das_string) : bool {
-        if (func.fromGeneric != null) {
-            errors := "[sql_function] is not supported on generic functions; instantiate with concrete types and tag the concrete instance"
-            return false
-        }
-        let nArgs = func.arguments |> length
-        if (nArgs > 4) {
-            errors := "[sql_function]: scalar functions support up to 4 arguments; got {nArgs}"
-            return false
-        }
-        var tags : array<uint8>
-        tags |> reserve(4)
-        for (i in range(nArgs)) {
-            let r = sql_fn_tag_for_type(func.arguments[i]._type)
-            if (!r.ok) {
-                errors := "[sql_function]: argument #{i + 1} of '{func.name}' has unsupported type '{describe(func.arguments[i]._type)}' — supported: int, int64, float, double, bool, string"
-                return false
-            }
-            tags |> push(r.tag)
-        }
-        while (tags |> length < 4) {
-            tags |> push(uint8(0))
-        }
-        let retR = sql_fn_tag_for_type(func.result)
-        if (!retR.ok) {
-            errors := "[sql_function]: return type '{describe(func.result)}' of '{func.name}' is unsupported — supported: int, int64, float, double, bool, string"
-            return false
-        }
-        let funcDasName = "{func.name}"
-        var sqlName = funcDasName
-        let nameArg = args |> find_arg("name")
-        if (nameArg is tString) {
-            sqlName = nameArg as tString
-            if (empty(sqlName)) {
-                errors := "[sql_function]: name= cannot be empty"
-                return false
-            }
-            if (!_is_valid_sql_function_name(sqlName)) {
-                errors := "[sql_function]: name='{sqlName}' is not a valid SQL identifier (must match [A-Za-z_][A-Za-z0-9_]*)"
-                return false
-            }
-        } elif (!(nameArg is nothing)) {
-            errors := "[sql_function]: name= must be a string literal"
-            return false
-        }
-        var deterministic = false
-        let detArg = args |> find_arg("deterministic")
-        if (detArg is tBool) {
-            deterministic = detArg as tBool
-        } elif (!(detArg is nothing)) {
-            errors := "[sql_function]: deterministic= must be a bool literal (true/false)"
-            return false
-        }
-        var directonly = false
-        let donArg = args |> find_arg("directonly")
-        if (donArg is tBool) {
-            directonly = donArg as tBool
-        } elif (!(donArg is nothing)) {
-            errors := "[sql_function]: directonly= must be a bool literal (true/false)"
-            return false
-        }
-        var reg <- setup_call_list("register`duckdb`functions", func.at, true/*isInit*/, true/*isPrivate*/)
-        let nArgsLit = nArgs
-        let tag0 = tags[0]
-        let tag1 = tags[1]
-        let tag2 = tags[2]
-        let tag3 = tags[3]
-        let retTag = retR.tag
-        // ExprAddr with explicit funcType + `__::` target — funcType alone ties on same-signature imports.
-        var fnType = new TypeDecl(at = func.at, baseType = Type.tFunction)
-        for (a in func.arguments) {
-            fnType.argTypes |> emplace_new <| clone_type(a._type)
-        }
-        fnType.firstType = clone_type(func.result)
-        var fnAddr = new ExprAddr(at = func.at, target := "__::{funcDasName}", funcType <- fnType)
-        reg.list |> emplace_new <| qmacro_block() {
-            let thunk <- @(db : SqlRunner) : SqlError {
-                return _::_try_register_function_check_rc(db, $v(sqlName), $e(fnAddr),
-                    $v(nArgsLit), $v(tag0), $v(tag1), $v(tag2), $v(tag3),
-                    $v(retTag), $v(deterministic), $v(directonly))
-            }
-            duckdb_boost::_add_sql_function_thunk($v(sqlName), $v(nArgsLit), thunk)
-        }
-        return true
-    }
+    return install_err
 }

@@ -6,7 +6,7 @@ def initialize(project_path : string) {
     if (das_is_dll_build()) {
         register_dynamic_module("{project_path}/dasModuleDuckDB.shared_module", "Module_dasDUCKDB")
     }
-    let duckdb_paths = ["duckdb_stmt", "duckdb_boost", "duckdb_provider"]
+    let duckdb_paths = ["duckdb_stmt", "duckdb_boost", "duckdb_provider", "duckdb_migrate"]
     for (path in duckdb_paths) {
         register_native_path("duckdb", "{path}", "{project_path}/daslib/{path}.das")
     }

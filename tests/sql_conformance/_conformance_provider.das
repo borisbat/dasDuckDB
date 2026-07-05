@@ -9,6 +9,11 @@ module _conformance_provider shared public
 //! `test_conf_fts5.das` is dropped from this copy (caps.fts5 off — DuckDB's FTS
 //! extension is a different surface; see the README's capability-skip policy).
 
+// The migration glue is required before the boost — mirrors the main-repo shim, where
+// requiring the boost first can resurrect a stale shared-module generation after
+// intentionally-failing compile tests in the same dastest process (daslang
+// shared-module promotion bug; see the main repo's shim for the minimal repro).
+require duckdb/duckdb_migrate public
 require duckdb/duckdb_boost public
 require daslib/sql_linq public
 
