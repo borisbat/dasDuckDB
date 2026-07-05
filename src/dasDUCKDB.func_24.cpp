@@ -12,29 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_24() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5663:22
-	makeExtern< int64_t (*)(_duckdb_file_handle *) , duckdb_file_handle_size , SimNode_ExtFuncCall >(lib,"duckdb_file_handle_size","duckdb_file_handle_size")
-		->args({"file_handle"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5672:27
-	makeExtern< duckdb_state (*)(_duckdb_file_handle *,int64_t) , duckdb_file_handle_seek , SimNode_ExtFuncCall >(lib,"duckdb_file_handle_seek","duckdb_file_handle_seek")
-		->args({"file_handle","position"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5681:27
-	makeExtern< duckdb_state (*)(_duckdb_file_handle *) , duckdb_file_handle_sync , SimNode_ExtFuncCall >(lib,"duckdb_file_handle_sync","duckdb_file_handle_sync")
-		->args({"file_handle"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5690:27
-	makeExtern< duckdb_state (*)(_duckdb_file_handle *) , duckdb_file_handle_close , SimNode_ExtFuncCall >(lib,"duckdb_file_handle_close","duckdb_file_handle_close")
-		->args({"file_handle"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5704:35
-	makeExtern< _duckdb_config_option * (*)() , duckdb_create_config_option , SimNode_ExtFuncCall >(lib,"duckdb_create_config_option","duckdb_create_config_option")
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5710:19
-	makeExtern< void (*)(_duckdb_config_option **) , duckdb_destroy_config_option , SimNode_ExtFuncCall >(lib,"duckdb_destroy_config_option","duckdb_destroy_config_option")
-		->args({"option"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5718:19
 	makeExtern< void (*)(_duckdb_config_option *,const char *) , duckdb_config_option_set_name , SimNode_ExtFuncCall >(lib,"duckdb_config_option_set_name","duckdb_config_option_set_name")
 		->args({"option","name"})
@@ -88,6 +65,30 @@ void Module_dasDUCKDB::initFunctions_24() {
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5858:36
 	makeExtern< _duckdb_client_context * (*)(_duckdb_copy_function_bind_info *) , duckdb_copy_function_bind_get_client_context , SimNode_ExtFuncCall >(lib,"duckdb_copy_function_bind_get_client_context","duckdb_copy_function_bind_get_client_context")
+		->args({"info"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5866:20
+	makeExtern< idx_t (*)(_duckdb_copy_function_bind_info *) , duckdb_copy_function_bind_get_column_count , SimNode_ExtFuncCall >(lib,"duckdb_copy_function_bind_get_column_count","duckdb_copy_function_bind_get_column_count")
+		->args({"info"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5875:34
+	makeExtern< _duckdb_logical_type * (*)(_duckdb_copy_function_bind_info *,idx_t) , duckdb_copy_function_bind_get_column_type , SimNode_ExtFuncCall >(lib,"duckdb_copy_function_bind_get_column_type","duckdb_copy_function_bind_get_column_type")
+		->args({"info","col_idx"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5884:27
+	makeExtern< _duckdb_value * (*)(_duckdb_copy_function_bind_info *) , duckdb_copy_function_bind_get_options , SimNode_ExtFuncCall >(lib,"duckdb_copy_function_bind_get_options","duckdb_copy_function_bind_get_options")
+		->args({"info"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5910:19
+	makeExtern< void (*)(_duckdb_copy_function_global_init_info *,const char *) , duckdb_copy_function_global_init_set_error , SimNode_ExtFuncCall >(lib,"duckdb_copy_function_global_init_set_error","duckdb_copy_function_global_init_set_error")
+		->args({"info","error"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5919:20
+	makeExtern< void * (*)(_duckdb_copy_function_global_init_info *) , duckdb_copy_function_global_init_get_extra_info , SimNode_ExtFuncCall >(lib,"duckdb_copy_function_global_init_get_extra_info","duckdb_copy_function_global_init_get_extra_info")
+		->args({"info"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5930:1
+	makeExtern< _duckdb_client_context * (*)(_duckdb_copy_function_global_init_info *) , duckdb_copy_function_global_init_get_client_context , SimNode_ExtFuncCall >(lib,"duckdb_copy_function_global_init_get_client_context","duckdb_copy_function_global_init_get_client_context")
 		->args({"info"})
 		->addToModule(*this, SideEffects::worstDefault);
 }

@@ -12,29 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_15() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3676:19
-	makeExtern< void (*)(unsigned long long *,idx_t) , duckdb_validity_set_row_valid , SimNode_ExtFuncCall >(lib,"duckdb_validity_set_row_valid","duckdb_validity_set_row_valid")
-		->args({"validity","row"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3694:37
-	makeExtern< _duckdb_scalar_function * (*)() , duckdb_create_scalar_function , SimNode_ExtFuncCall >(lib,"duckdb_create_scalar_function","duckdb_create_scalar_function")
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3701:19
-	makeExtern< void (*)(_duckdb_scalar_function **) , duckdb_destroy_scalar_function , SimNode_ExtFuncCall >(lib,"duckdb_destroy_scalar_function","duckdb_destroy_scalar_function")
-		->args({"scalar_function"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3709:19
-	makeExtern< void (*)(_duckdb_scalar_function *,const char *) , duckdb_scalar_function_set_name , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_set_name","duckdb_scalar_function_set_name")
-		->args({"scalar_function","name"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3719:19
-	makeExtern< void (*)(_duckdb_scalar_function *,_duckdb_logical_type *) , duckdb_scalar_function_set_varargs , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_set_varargs","duckdb_scalar_function_set_varargs")
-		->args({"scalar_function","type"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3726:19
-	makeExtern< void (*)(_duckdb_scalar_function *) , duckdb_scalar_function_set_special_handling , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_set_special_handling","duckdb_scalar_function_set_special_handling")
-		->args({"scalar_function"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3734:19
 	makeExtern< void (*)(_duckdb_scalar_function *) , duckdb_scalar_function_set_volatile , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_set_volatile","duckdb_scalar_function_set_volatile")
 		->args({"scalar_function"})
@@ -90,6 +67,30 @@ void Module_dasDUCKDB::initFunctions_15() {
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3902:27
 	makeExtern< duckdb_state (*)(_duckdb_connection *,_duckdb_scalar_function_set *) , duckdb_register_scalar_function_set , SimNode_ExtFuncCall >(lib,"duckdb_register_scalar_function_set","duckdb_register_scalar_function_set")
 		->args({"con","set"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3910:20
+	makeExtern< idx_t (*)(_duckdb_bind_info *) , duckdb_scalar_function_bind_get_argument_count , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_bind_get_argument_count","duckdb_scalar_function_bind_get_argument_count")
+		->args({"info"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3919:32
+	makeExtern< _duckdb_expression * (*)(_duckdb_bind_info *,idx_t) , duckdb_scalar_function_bind_get_argument , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_bind_get_argument","duckdb_scalar_function_bind_get_argument")
+		->args({"info","index"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3927:20
+	makeExtern< void * (*)(_duckdb_function_info *) , duckdb_scalar_function_get_state , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_get_state","duckdb_scalar_function_get_state")
+		->args({"info"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3944:19
+	makeExtern< void (*)(_duckdb_init_info *,const char *) , duckdb_scalar_function_init_set_error , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_init_set_error","duckdb_scalar_function_init_set_error")
+		->args({"info","error"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3962:19
+	makeExtern< void (*)(_duckdb_init_info *,_duckdb_client_context **) , duckdb_scalar_function_init_get_client_context , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_init_get_client_context","duckdb_scalar_function_init_get_client_context")
+		->args({"info","out_context"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3972:20
+	makeExtern< void * (*)(_duckdb_init_info *) , duckdb_scalar_function_init_get_bind_data , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_init_get_bind_data","duckdb_scalar_function_init_get_bind_data")
+		->args({"info"})
 		->addToModule(*this, SideEffects::worstDefault);
 }
 }

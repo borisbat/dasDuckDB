@@ -12,10 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_7() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2120:27
-	makeExtern< duckdb_state (*)(_duckdb_prepared_statement *,idx_t,double) , duckdb_bind_double , SimNode_ExtFuncCall >(lib,"duckdb_bind_double","duckdb_bind_double")
-		->args({"prepared_statement","param_idx","val"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2125:27
 	makeExtern< duckdb_state (*)(_duckdb_prepared_statement *,idx_t,duckdb_date) , duckdb_bind_date , SimNode_ExtFuncCall >(lib,"duckdb_bind_date","duckdb_bind_date")
 		->args({"prepared_statement","param_idx","val"})
@@ -90,6 +86,10 @@ void Module_dasDUCKDB::initFunctions_7() {
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2335:26
 	makeExtern< const char * (*)(_duckdb_pending_result *) , duckdb_pending_error , SimNode_ExtFuncCall >(lib,"duckdb_pending_error","duckdb_pending_error")
+		->args({"pending_result"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2349:35
+	makeExtern< duckdb_pending_state (*)(_duckdb_pending_result *) , duckdb_pending_execute_task , SimNode_ExtFuncCall >(lib,"duckdb_pending_execute_task","duckdb_pending_execute_task")
 		->args({"pending_result"})
 		->addToModule(*this, SideEffects::worstDefault);
 }

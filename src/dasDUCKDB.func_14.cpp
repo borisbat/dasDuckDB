@@ -12,16 +12,8 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_14() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3439:34
-	makeExtern< _duckdb_logical_type * (*)(_duckdb_vector *) , duckdb_vector_get_column_type , SimNode_ExtFuncCall >(lib,"duckdb_vector_get_column_type","duckdb_vector_get_column_type")
-		->args({"vector"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3450:20
 	makeExtern< void * (*)(_duckdb_vector *) , duckdb_vector_get_data , SimNode_ExtFuncCall >(lib,"duckdb_vector_get_data","duckdb_vector_get_data")
-		->args({"vector"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3472:24
-	makeExtern< unsigned long long * (*)(_duckdb_vector *) , duckdb_vector_get_validity , SimNode_ExtFuncCall >(lib,"duckdb_vector_get_validity","duckdb_vector_get_validity")
 		->args({"vector"})
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3482:19
@@ -80,17 +72,24 @@ void Module_dasDUCKDB::initFunctions_14() {
 	makeExtern< void (*)(_duckdb_vector *,_duckdb_vector *) , duckdb_vector_reference_vector , SimNode_ExtFuncCall >(lib,"duckdb_vector_reference_vector","duckdb_vector_reference_vector")
 		->args({"to_vector","from_vector"})
 		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3644:19
-	makeExtern< bool (*)(unsigned long long *,idx_t) , duckdb_validity_row_is_valid , SimNode_ExtFuncCall >(lib,"duckdb_validity_row_is_valid","duckdb_validity_row_is_valid")
-		->args({"validity","row"})
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3694:37
+	makeExtern< _duckdb_scalar_function * (*)() , duckdb_create_scalar_function , SimNode_ExtFuncCall >(lib,"duckdb_create_scalar_function","duckdb_create_scalar_function")
 		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3656:19
-	makeExtern< void (*)(unsigned long long *,idx_t,bool) , duckdb_validity_set_row_validity , SimNode_ExtFuncCall >(lib,"duckdb_validity_set_row_validity","duckdb_validity_set_row_validity")
-		->args({"validity","row","valid"})
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3701:19
+	makeExtern< void (*)(_duckdb_scalar_function **) , duckdb_destroy_scalar_function , SimNode_ExtFuncCall >(lib,"duckdb_destroy_scalar_function","duckdb_destroy_scalar_function")
+		->args({"scalar_function"})
 		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3666:19
-	makeExtern< void (*)(unsigned long long *,idx_t) , duckdb_validity_set_row_invalid , SimNode_ExtFuncCall >(lib,"duckdb_validity_set_row_invalid","duckdb_validity_set_row_invalid")
-		->args({"validity","row"})
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3709:19
+	makeExtern< void (*)(_duckdb_scalar_function *,const char *) , duckdb_scalar_function_set_name , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_set_name","duckdb_scalar_function_set_name")
+		->args({"scalar_function","name"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3719:19
+	makeExtern< void (*)(_duckdb_scalar_function *,_duckdb_logical_type *) , duckdb_scalar_function_set_varargs , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_set_varargs","duckdb_scalar_function_set_varargs")
+		->args({"scalar_function","type"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3726:19
+	makeExtern< void (*)(_duckdb_scalar_function *) , duckdb_scalar_function_set_special_handling , SimNode_ExtFuncCall >(lib,"duckdb_scalar_function_set_special_handling","duckdb_scalar_function_set_special_handling")
+		->args({"scalar_function"})
 		->addToModule(*this, SideEffects::worstDefault);
 }
 }

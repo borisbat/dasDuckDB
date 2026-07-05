@@ -12,30 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_19() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4676:20
-	makeExtern< idx_t (*)(_duckdb_appender *) , duckdb_appender_column_count , SimNode_ExtFuncCall >(lib,"duckdb_appender_column_count","duckdb_appender_column_count")
-		->args({"appender"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4688:34
-	makeExtern< _duckdb_logical_type * (*)(_duckdb_appender *,idx_t) , duckdb_appender_column_type , SimNode_ExtFuncCall >(lib,"duckdb_appender_column_type","duckdb_appender_column_type")
-		->args({"appender","col_idx"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4703:26
-	makeExtern< const char * (*)(_duckdb_appender *) , duckdb_appender_error , SimNode_ExtFuncCall >(lib,"duckdb_appender_error","duckdb_appender_error")
-		->args({"appender"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4714:32
-	makeExtern< _duckdb_error_data * (*)(_duckdb_appender *) , duckdb_appender_error_data , SimNode_ExtFuncCall >(lib,"duckdb_appender_error_data","duckdb_appender_error_data")
-		->args({"appender"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4725:27
-	makeExtern< duckdb_state (*)(_duckdb_appender *) , duckdb_appender_flush , SimNode_ExtFuncCall >(lib,"duckdb_appender_flush","duckdb_appender_flush")
-		->args({"appender"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4734:27
-	makeExtern< duckdb_state (*)(_duckdb_appender *) , duckdb_appender_clear , SimNode_ExtFuncCall >(lib,"duckdb_appender_clear","duckdb_appender_clear")
-		->args({"appender"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4745:27
 	makeExtern< duckdb_state (*)(_duckdb_appender *) , duckdb_appender_close , SimNode_ExtFuncCall >(lib,"duckdb_appender_close","duckdb_appender_close")
 		->args({"appender"})
@@ -90,6 +66,30 @@ void Module_dasDUCKDB::initFunctions_19() {
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4839:27
 	makeExtern< duckdb_state (*)(_duckdb_appender *,duckdb_hugeint) , duckdb_append_hugeint , SimNode_ExtFuncCall >(lib,"duckdb_append_hugeint","duckdb_append_hugeint")
+		->args({"appender","value"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4844:27
+	makeExtern< duckdb_state (*)(_duckdb_appender *,unsigned char) , duckdb_append_uint8 , SimNode_ExtFuncCall >(lib,"duckdb_append_uint8","duckdb_append_uint8")
+		->args({"appender","value"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4849:27
+	makeExtern< duckdb_state (*)(_duckdb_appender *,unsigned short) , duckdb_append_uint16 , SimNode_ExtFuncCall >(lib,"duckdb_append_uint16","duckdb_append_uint16")
+		->args({"appender","value"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4854:27
+	makeExtern< duckdb_state (*)(_duckdb_appender *,unsigned int) , duckdb_append_uint32 , SimNode_ExtFuncCall >(lib,"duckdb_append_uint32","duckdb_append_uint32")
+		->args({"appender","value"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4859:27
+	makeExtern< duckdb_state (*)(_duckdb_appender *,uint64_t) , duckdb_append_uint64 , SimNode_ExtFuncCall >(lib,"duckdb_append_uint64","duckdb_append_uint64")
+		->args({"appender","value"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4864:27
+	makeExtern< duckdb_state (*)(_duckdb_appender *,duckdb_uhugeint) , duckdb_append_uhugeint , SimNode_ExtFuncCall >(lib,"duckdb_append_uhugeint","duckdb_append_uhugeint")
+		->args({"appender","value"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4869:27
+	makeExtern< duckdb_state (*)(_duckdb_appender *,float) , duckdb_append_float , SimNode_ExtFuncCall >(lib,"duckdb_append_float","duckdb_append_float")
 		->args({"appender","value"})
 		->addToModule(*this, SideEffects::worstDefault);
 }

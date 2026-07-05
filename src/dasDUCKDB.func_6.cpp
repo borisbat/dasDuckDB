@@ -36,10 +36,6 @@ void Module_dasDUCKDB::initFunctions_6() {
 	makeExtern< duckdb_state (*)(_duckdb_prepared_statement *,idx_t,_duckdb_value *) , duckdb_bind_value , SimNode_ExtFuncCall >(lib,"duckdb_bind_value","duckdb_bind_value")
 		->args({"prepared_statement","param_idx","val"})
 		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2043:27
-	makeExtern< duckdb_state (*)(_duckdb_prepared_statement *,unsigned long long *,const char *) , duckdb_bind_parameter_index , SimNode_ExtFuncCall >(lib,"duckdb_bind_parameter_index","duckdb_bind_parameter_index")
-		->args({"prepared_statement","param_idx_out","name"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2049:27
 	makeExtern< duckdb_state (*)(_duckdb_prepared_statement *,idx_t,bool) , duckdb_bind_boolean , SimNode_ExtFuncCall >(lib,"duckdb_bind_boolean","duckdb_bind_boolean")
 		->args({"prepared_statement","param_idx","val"})
@@ -90,6 +86,10 @@ void Module_dasDUCKDB::initFunctions_6() {
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2115:27
 	makeExtern< duckdb_state (*)(_duckdb_prepared_statement *,idx_t,float) , duckdb_bind_float , SimNode_ExtFuncCall >(lib,"duckdb_bind_float","duckdb_bind_float")
+		->args({"prepared_statement","param_idx","val"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2120:27
+	makeExtern< duckdb_state (*)(_duckdb_prepared_statement *,idx_t,double) , duckdb_bind_double , SimNode_ExtFuncCall >(lib,"duckdb_bind_double","duckdb_bind_double")
 		->args({"prepared_statement","param_idx","val"})
 		->addToModule(*this, SideEffects::worstDefault);
 }

@@ -12,10 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_12() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3039:20
-	makeExtern< char * (*)(_duckdb_value *) , duckdb_value_to_string , SimNode_ExtFuncCall >(lib,"duckdb_value_to_string","duckdb_value_to_string")
-		->args({"value"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3058:34
 	makeExtern< _duckdb_logical_type * (*)(DUCKDB_TYPE) , duckdb_create_logical_type , SimNode_ExtFuncCall >(lib,"duckdb_create_logical_type","duckdb_create_logical_type")
 		->args({"type"})
@@ -90,6 +86,10 @@ void Module_dasDUCKDB::initFunctions_12() {
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3226:34
 	makeExtern< _duckdb_logical_type * (*)(_duckdb_logical_type *) , duckdb_array_type_child_type , SimNode_ExtFuncCall >(lib,"duckdb_array_type_child_type","duckdb_array_type_child_type")
+		->args({"type"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3234:20
+	makeExtern< idx_t (*)(_duckdb_logical_type *) , duckdb_array_type_array_size , SimNode_ExtFuncCall >(lib,"duckdb_array_type_array_size","duckdb_array_type_array_size")
 		->args({"type"})
 		->addToModule(*this, SideEffects::worstDefault);
 }

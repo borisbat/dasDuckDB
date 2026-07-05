@@ -12,30 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_21() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4981:26
-	makeExtern< const char * (*)(_duckdb_table_description *) , duckdb_table_description_error , SimNode_ExtFuncCall >(lib,"duckdb_table_description_error","duckdb_table_description_error")
-		->args({"table_description"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4991:27
-	makeExtern< duckdb_state (*)(_duckdb_table_description *,idx_t,bool *) , duckdb_column_has_default , SimNode_ExtFuncCall >(lib,"duckdb_column_has_default","duckdb_column_has_default")
-		->args({"table_description","index","out"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4999:20
-	makeExtern< idx_t (*)(_duckdb_table_description *) , duckdb_table_description_get_column_count , SimNode_ExtFuncCall >(lib,"duckdb_table_description_get_column_count","duckdb_table_description_get_column_count")
-		->args({"table_description"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5009:20
-	makeExtern< char * (*)(_duckdb_table_description *,idx_t) , duckdb_table_description_get_column_name , SimNode_ExtFuncCall >(lib,"duckdb_table_description_get_column_name","duckdb_table_description_get_column_name")
-		->args({"table_description","index"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5019:34
-	makeExtern< _duckdb_logical_type * (*)(_duckdb_table_description *,idx_t) , duckdb_table_description_get_column_type , SimNode_ExtFuncCall >(lib,"duckdb_table_description_get_column_type","duckdb_table_description_get_column_type")
-		->args({"table_description","index"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5039:32
-	makeExtern< _duckdb_error_data * (*)(_duckdb_arrow_options *,_duckdb_logical_type **,const char **,idx_t,ArrowSchema *) , duckdb_to_arrow_schema , SimNode_ExtFuncCall >(lib,"duckdb_to_arrow_schema","duckdb_to_arrow_schema")
-		->args({"arrow_options","types","names","column_count","out_schema"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5052:32
 	makeExtern< _duckdb_error_data * (*)(_duckdb_arrow_options *,_duckdb_data_chunk *,ArrowArray *) , duckdb_data_chunk_to_arrow , SimNode_ExtFuncCall >(lib,"duckdb_data_chunk_to_arrow","duckdb_data_chunk_to_arrow")
 		->args({"arrow_options","chunk","out_arrow_array"})
@@ -91,6 +67,30 @@ void Module_dasDUCKDB::initFunctions_21() {
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5211:19
 	makeExtern< void (*)(_duckdb_arrow **) , duckdb_destroy_arrow , SimNode_ExtFuncCall >(lib,"duckdb_destroy_arrow","duckdb_destroy_arrow")
 		->args({"result"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5220:19
+	makeExtern< void (*)(_duckdb_arrow_stream **) , duckdb_destroy_arrow_stream , SimNode_ExtFuncCall >(lib,"duckdb_destroy_arrow_stream","duckdb_destroy_arrow_stream")
+		->args({"stream_p"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5232:27
+	makeExtern< duckdb_state (*)(_duckdb_prepared_statement *,_duckdb_arrow **) , duckdb_execute_prepared_arrow , SimNode_ExtFuncCall >(lib,"duckdb_execute_prepared_arrow","duckdb_execute_prepared_arrow")
+		->args({"prepared_statement","out_result"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5245:27
+	makeExtern< duckdb_state (*)(_duckdb_connection *,const char *,_duckdb_arrow_stream *) , duckdb_arrow_scan , SimNode_ExtFuncCall >(lib,"duckdb_arrow_scan","duckdb_arrow_scan")
+		->args({"connection","table_name","arrow"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5261:27
+	makeExtern< duckdb_state (*)(_duckdb_connection *,const char *,_duckdb_arrow_schema *,_duckdb_arrow_array *,_duckdb_arrow_stream **) , duckdb_arrow_array_scan , SimNode_ExtFuncCall >(lib,"duckdb_arrow_array_scan","duckdb_arrow_array_scan")
+		->args({"connection","table_name","arrow_schema","arrow_array","out_stream"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5282:19
+	makeExtern< void (*)(_duckdb_database *,idx_t) , duckdb_execute_tasks , SimNode_ExtFuncCall >(lib,"duckdb_execute_tasks","duckdb_execute_tasks")
+		->args({"database","max_tasks"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5293:32
+	makeExtern< void * (*)(_duckdb_database *) , duckdb_create_task_state , SimNode_ExtFuncCall >(lib,"duckdb_create_task_state","duckdb_create_task_state")
+		->args({"database"})
 		->addToModule(*this, SideEffects::worstDefault);
 }
 }

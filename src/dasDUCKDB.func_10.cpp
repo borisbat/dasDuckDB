@@ -12,10 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_10() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2695:22
-	makeExtern< int (*)(_duckdb_value *) , duckdb_get_int32 , SimNode_ExtFuncCall >(lib,"duckdb_get_int32","duckdb_get_int32")
-		->args({"val"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2703:23
 	makeExtern< unsigned int (*)(_duckdb_value *) , duckdb_get_uint32 , SimNode_ExtFuncCall >(lib,"duckdb_get_uint32","duckdb_get_uint32")
 		->args({"val"})
@@ -90,6 +86,10 @@ void Module_dasDUCKDB::initFunctions_10() {
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2848:30
 	makeExtern< duckdb_interval (*)(_duckdb_value *) , duckdb_get_interval , SimNode_ExtFuncCallAndCopyOrMove >(lib,"duckdb_get_interval","duckdb_get_interval")
+		->args({"val"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2857:34
+	makeExtern< _duckdb_logical_type * (*)(_duckdb_value *) , duckdb_get_value_type , SimNode_ExtFuncCall >(lib,"duckdb_get_value_type","duckdb_get_value_type")
 		->args({"val"})
 		->addToModule(*this, SideEffects::worstDefault);
 }

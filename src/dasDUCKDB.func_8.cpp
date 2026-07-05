@@ -12,10 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_8() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2349:35
-	makeExtern< duckdb_pending_state (*)(_duckdb_pending_result *) , duckdb_pending_execute_task , SimNode_ExtFuncCall >(lib,"duckdb_pending_execute_task","duckdb_pending_execute_task")
-		->args({"pending_result"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2361:35
 	makeExtern< duckdb_pending_state (*)(_duckdb_pending_result *) , duckdb_pending_execute_check_state , SimNode_ExtFuncCall >(lib,"duckdb_pending_execute_check_state","duckdb_pending_execute_check_state")
 		->args({"pending_result"})
@@ -90,6 +86,10 @@ void Module_dasDUCKDB::initFunctions_8() {
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2525:27
 	makeExtern< _duckdb_value * (*)(duckdb_decimal) , duckdb_create_decimal , SimNode_ExtFuncCall >(lib,"duckdb_create_decimal","duckdb_create_decimal")
+		->args({"input"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2533:27
+	makeExtern< _duckdb_value * (*)(float) , duckdb_create_float , SimNode_ExtFuncCall >(lib,"duckdb_create_float","duckdb_create_float")
 		->args({"input"})
 		->addToModule(*this, SideEffects::worstDefault);
 }

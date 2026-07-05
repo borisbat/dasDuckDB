@@ -12,30 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_20() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4844:27
-	makeExtern< duckdb_state (*)(_duckdb_appender *,unsigned char) , duckdb_append_uint8 , SimNode_ExtFuncCall >(lib,"duckdb_append_uint8","duckdb_append_uint8")
-		->args({"appender","value"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4849:27
-	makeExtern< duckdb_state (*)(_duckdb_appender *,unsigned short) , duckdb_append_uint16 , SimNode_ExtFuncCall >(lib,"duckdb_append_uint16","duckdb_append_uint16")
-		->args({"appender","value"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4854:27
-	makeExtern< duckdb_state (*)(_duckdb_appender *,unsigned int) , duckdb_append_uint32 , SimNode_ExtFuncCall >(lib,"duckdb_append_uint32","duckdb_append_uint32")
-		->args({"appender","value"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4859:27
-	makeExtern< duckdb_state (*)(_duckdb_appender *,uint64_t) , duckdb_append_uint64 , SimNode_ExtFuncCall >(lib,"duckdb_append_uint64","duckdb_append_uint64")
-		->args({"appender","value"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4864:27
-	makeExtern< duckdb_state (*)(_duckdb_appender *,duckdb_uhugeint) , duckdb_append_uhugeint , SimNode_ExtFuncCall >(lib,"duckdb_append_uhugeint","duckdb_append_uhugeint")
-		->args({"appender","value"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4869:27
-	makeExtern< duckdb_state (*)(_duckdb_appender *,float) , duckdb_append_float , SimNode_ExtFuncCall >(lib,"duckdb_append_float","duckdb_append_float")
-		->args({"appender","value"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4874:27
 	makeExtern< duckdb_state (*)(_duckdb_appender *,double) , duckdb_append_double , SimNode_ExtFuncCall >(lib,"duckdb_append_double","duckdb_append_double")
 		->args({"appender","value"})
@@ -91,6 +67,30 @@ void Module_dasDUCKDB::initFunctions_20() {
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4971:19
 	makeExtern< void (*)(_duckdb_table_description **) , duckdb_table_description_destroy , SimNode_ExtFuncCall >(lib,"duckdb_table_description_destroy","duckdb_table_description_destroy")
 		->args({"table_description"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4981:26
+	makeExtern< const char * (*)(_duckdb_table_description *) , duckdb_table_description_error , SimNode_ExtFuncCall >(lib,"duckdb_table_description_error","duckdb_table_description_error")
+		->args({"table_description"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4991:27
+	makeExtern< duckdb_state (*)(_duckdb_table_description *,idx_t,bool *) , duckdb_column_has_default , SimNode_ExtFuncCall >(lib,"duckdb_column_has_default","duckdb_column_has_default")
+		->args({"table_description","index","out"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:4999:20
+	makeExtern< idx_t (*)(_duckdb_table_description *) , duckdb_table_description_get_column_count , SimNode_ExtFuncCall >(lib,"duckdb_table_description_get_column_count","duckdb_table_description_get_column_count")
+		->args({"table_description"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5009:20
+	makeExtern< char * (*)(_duckdb_table_description *,idx_t) , duckdb_table_description_get_column_name , SimNode_ExtFuncCall >(lib,"duckdb_table_description_get_column_name","duckdb_table_description_get_column_name")
+		->args({"table_description","index"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5019:34
+	makeExtern< _duckdb_logical_type * (*)(_duckdb_table_description *,idx_t) , duckdb_table_description_get_column_type , SimNode_ExtFuncCall >(lib,"duckdb_table_description_get_column_type","duckdb_table_description_get_column_type")
+		->args({"table_description","index"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:5039:32
+	makeExtern< _duckdb_error_data * (*)(_duckdb_arrow_options *,_duckdb_logical_type **,const char **,idx_t,ArrowSchema *) , duckdb_to_arrow_schema , SimNode_ExtFuncCall >(lib,"duckdb_to_arrow_schema","duckdb_to_arrow_schema")
+		->args({"arrow_options","types","names","column_count","out_schema"})
 		->addToModule(*this, SideEffects::worstDefault);
 }
 }

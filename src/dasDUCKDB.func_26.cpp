@@ -12,30 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_26() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:6107:26
-	makeExtern< const char * (*)(_duckdb_bind_info *,idx_t) , duckdb_table_function_bind_get_result_column_name , SimNode_ExtFuncCall >(lib,"duckdb_table_function_bind_get_result_column_name","duckdb_table_function_bind_get_result_column_name")
-		->args({"info","col_idx"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:6121:34
-	makeExtern< _duckdb_logical_type * (*)(_duckdb_bind_info *,idx_t) , duckdb_table_function_bind_get_result_column_type , SimNode_ExtFuncCall >(lib,"duckdb_table_function_bind_get_result_column_type","duckdb_table_function_bind_get_result_column_type")
-		->args({"info","col_idx"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:6143:29
-	makeExtern< _duckdb_catalog * (*)(_duckdb_client_context *,const char *) , duckdb_client_context_get_catalog , SimNode_ExtFuncCall >(lib,"duckdb_client_context_get_catalog","duckdb_client_context_get_catalog")
-		->args({"context","catalog_name"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:6153:26
-	makeExtern< const char * (*)(_duckdb_catalog *) , duckdb_catalog_get_type_name , SimNode_ExtFuncCall >(lib,"duckdb_catalog_get_type_name","duckdb_catalog_get_type_name")
-		->args({"catalog"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:6167:35
-	makeExtern< _duckdb_catalog_entry * (*)(_duckdb_catalog *,_duckdb_client_context *,duckdb_catalog_entry_type,const char *,const char *) , duckdb_catalog_get_entry , SimNode_ExtFuncCall >(lib,"duckdb_catalog_get_entry","duckdb_catalog_get_entry")
-		->args({"catalog","context","entry_type","schema_name","entry_name"})
-		->addToModule(*this, SideEffects::worstDefault);
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:6178:19
-	makeExtern< void (*)(_duckdb_catalog **) , duckdb_destroy_catalog , SimNode_ExtFuncCall >(lib,"duckdb_destroy_catalog","duckdb_destroy_catalog")
-		->args({"catalog"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:6186:40
 	makeExtern< duckdb_catalog_entry_type (*)(_duckdb_catalog_entry *) , duckdb_catalog_entry_get_type , SimNode_ExtFuncCall >(lib,"duckdb_catalog_entry_get_type","duckdb_catalog_entry_get_type")
 		->args({"entry"})

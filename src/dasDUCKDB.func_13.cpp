@@ -12,10 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_13() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3234:20
-	makeExtern< idx_t (*)(_duckdb_logical_type *) , duckdb_array_type_array_size , SimNode_ExtFuncCall >(lib,"duckdb_array_type_array_size","duckdb_array_type_array_size")
-		->args({"type"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3244:34
 	makeExtern< _duckdb_logical_type * (*)(_duckdb_logical_type *) , duckdb_map_type_key_type , SimNode_ExtFuncCall >(lib,"duckdb_map_type_key_type","duckdb_map_type_key_type")
 		->args({"type"})
@@ -90,6 +86,10 @@ void Module_dasDUCKDB::initFunctions_13() {
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3429:19
 	makeExtern< void (*)(_duckdb_vector **) , duckdb_destroy_vector , SimNode_ExtFuncCall >(lib,"duckdb_destroy_vector","duckdb_destroy_vector")
+		->args({"vector"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:3439:34
+	makeExtern< _duckdb_logical_type * (*)(_duckdb_vector *) , duckdb_vector_get_column_type , SimNode_ExtFuncCall >(lib,"duckdb_vector_get_column_type","duckdb_vector_get_column_type")
 		->args({"vector"})
 		->addToModule(*this, SideEffects::worstDefault);
 }

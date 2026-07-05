@@ -12,10 +12,6 @@
 namespace das {
 #include "dasDUCKDB.func.aot.decl.inc"
 void Module_dasDUCKDB::initFunctions_9() {
-// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2533:27
-	makeExtern< _duckdb_value * (*)(float) , duckdb_create_float , SimNode_ExtFuncCall >(lib,"duckdb_create_float","duckdb_create_float")
-		->args({"input"})
-		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2541:27
 	makeExtern< _duckdb_value * (*)(double) , duckdb_create_double , SimNode_ExtFuncCall >(lib,"duckdb_create_double","duckdb_create_double")
 		->args({"input"})
@@ -90,6 +86,10 @@ void Module_dasDUCKDB::initFunctions_9() {
 		->addToModule(*this, SideEffects::worstDefault);
 // from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2687:23
 	makeExtern< unsigned short (*)(_duckdb_value *) , duckdb_get_uint16 , SimNode_ExtFuncCall >(lib,"duckdb_get_uint16","duckdb_get_uint16")
+		->args({"val"})
+		->addToModule(*this, SideEffects::worstDefault);
+// from D:/DASPKG/dasDuckDB/duckdb/duckdb.h:2695:22
+	makeExtern< int (*)(_duckdb_value *) , duckdb_get_int32 , SimNode_ExtFuncCall >(lib,"duckdb_get_int32","duckdb_get_int32")
 		->args({"val"})
 		->addToModule(*this, SideEffects::worstDefault);
 }
