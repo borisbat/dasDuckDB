@@ -150,7 +150,7 @@ def register_duckdb_provider {
         sqlTypeFor = @@duckdb_sql_type,
         identityDdl = "PRIMARY KEY",
         readTableSchema = @@_duckdb_read_table_schema,
-        caps = SqlProviderCaps.client_udfs | SqlProviderCaps.returning,
+        caps = SqlProviderCaps.client_udfs | SqlProviderCaps.returning | SqlProviderCaps.distinct_on,
         pkReport = SqlPkReport.ReturningPk)
     register_sql_provider(info)
 }
