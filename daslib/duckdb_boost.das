@@ -246,9 +246,7 @@ def sql_bind_to_stmt(var stmt : DuckStmt?; idx : int; v : array<uint8>) : void {
     if (empty(v)) {
         duckdb_bind_blob(stmt.stmt, uint64(idx), null, 0ul)
     } else {
-        unsafe {
-            duckdb_bind_blob(stmt.stmt, uint64(idx), reinterpret<void?>(addr(v[0])), uint64(length(v)))
-        }
+        duckdb_bind_blob(stmt.stmt, uint64(idx), unsafe(addr<void?>(v[0])), uint64(length(v)))
     }
 }
 
