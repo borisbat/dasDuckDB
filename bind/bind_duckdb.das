@@ -1,4 +1,5 @@
 options gen2
+options _comment_hygiene = true
 require cbind/cbind_boost
 require daslib/fio
 require daslib/defer
@@ -86,11 +87,9 @@ class DuckDbGen : CppGenBind {
         if (fname == "duckdb_string_is_inlined" || fname == "duckdb_string_t_length" || fname == "duckdb_string_t_data") {
             return true
         }
-        // uint64_t* carriers: the binder canonicalizes uint64_t to `unsigned long long`,
-        // which is a DIFFERENT type from LP64 Linux's `unsigned long` uint64_t — the
-        // generated makeExtern then fails to compile under gcc. All six are chunk-API
-        // surface the das side never touches (the [sql_function] trampoline uses the
-        // validity API natively in C++; das binds positionally).
+        // uint64_t* carriers: the binder canonicalizes uint64_t to `unsigned long long` — a DIFFERENT type from
+        // LP64 Linux's `unsigned long` uint64_t — so the generated makeExtern fails to compile under gcc. Safe to
+        // skip: the validity/chunk API is used natively in C++ by the [sql_function] trampoline, and das binds positionally.
         if (fname |> starts_with("duckdb_validity_") || fname == "duckdb_vector_get_validity" || fname == "duckdb_bind_parameter_index") {
             return true
         }

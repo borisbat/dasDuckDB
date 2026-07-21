@@ -1,4 +1,5 @@
 options gen2
+options _comment_hygiene = true
 options indenting = 4
 options no_unused_function_arguments = false
 options strict_smart_pointers
@@ -125,10 +126,9 @@ def private _duckdb_make_stmt_type_const() : TypeDeclPtr => qmacro_type(type<Duc
 [unused_argument(ordinal)]
 def private _duckdb_render_placeholder(ordinal : int) : string => "?"
 
-// json_extract_string, NOT json_extract: DuckDB's json_extract returns a typed JSON
-// value, so comparing against a bound VARCHAR coerces the comparand INTO json and
-// fails ("Malformed JSON"). json_extract_string returns VARCHAR — matching SQLite's
-// unquoted-scalar json_extract semantics for predicate/projection descent.
+// json_extract_string, NOT json_extract: DuckDB's json_extract returns a typed JSON value, so comparing
+// against a bound VARCHAR coerces the comparand INTO json and fails ("Malformed JSON"). json_extract_string
+// returns VARCHAR — matching SQLite's unquoted-scalar semantics for predicate/projection descent.
 def private _duckdb_render_json_extract(target : string; jsonPath : string) : string => "json_extract_string({target}, {jsonPath})"
 
 def private _duckdb_quote_id(id : string) : string => sql_quote_id(id)
