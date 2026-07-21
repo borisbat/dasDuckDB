@@ -1,4 +1,5 @@
 options gen2
+options _comment_hygiene = true
 options indenting = 4
 options no_unused_function_arguments = false
 options strict_smart_pointers
@@ -213,8 +214,7 @@ def private duckdb_column_text_(res : duckdb_result?; col : int; row : uint64) :
 }
 
 def private duckdb_column_blob_(res : duckdb_result?; col : int; row : uint64) : array<uint8> {
-    //! Reads a BLOB cell as a fresh ``array<uint8>`` — DuckDB hands out a malloc'd
-    //! copy that must be duckdb_free'd.
+    // duckdb_value_blob hands out a malloc'd COPY — we own it and must duckdb_free it.
     var b = duckdb_value_blob(res, uint64(col), row)
     let n = int(b.size)
     var r : array<uint8>
@@ -454,9 +454,8 @@ def run_each_select(db : SqlRunner; sql : string;
                     bind_blk : block<(var stmt : DuckStmt?) : void>;
                     var row_lam : lambda<(var stmt : DuckStmt?) : auto(TT)>) {
     //! `_each_sql` macro runtime — lazy ``generator<TT>`` sibling of ``run_select``.
-    //! DuckDB materializes results anyway, so rows are collected eagerly and the
-    //! generator yields from the array; the result/statement are destroyed before
-    //! iteration starts (early ``break`` can never leak a cursor).
+    //! DuckDB materializes results anyway, so rows are collected eagerly and yielded from the
+    //! array; result/statement die before iteration, so an early ``break`` can't leak a cursor.
     var rows <- db |> try_with_stmt(sql, "_each_sql", bind_blk,
         $(var ds : DuckStmt?) : Result<array<TT -const -#>, string> {
             var inscope result : array<TT -const -#>
@@ -781,10 +780,9 @@ def insert(db : SqlRunner; row : auto(TT)) : int64 {
 }
 
 def try_insert(db : SqlRunner; row : auto(TT); name : string) : Result<int64, string> {
-    //! Inserts a single row into table identifier ``name`` instead of T's own ``[sql_table(name=...)]``.
-    //! Used during a struct_convert rebuild to write into the staging table before the rename swap.
-    //! Same PK semantics as ``try_insert(row)`` — but note a staging table made from the generated
-    //! DDL has no backing sequence, so pk-unset rows only work against T's own table.
+    //! Inserts one row into table identifier ``name`` rather than T's own ``[sql_table(name=...)]`` — used by a
+    //! struct_convert rebuild to fill the staging table before the rename swap. PK semantics match ``try_insert``,
+    //! but a staging table has no backing sequence, so pk-unset rows only work against T's own table.
     let pk_unset = _::_sql_pk_is_unset(row)
     let base_sql = (pk_unset
         ? _::_sql_insert_no_pk_sql(default<TT>, name)
@@ -916,6 +914,7 @@ def delete_by_id(db : SqlRunner; t : type<auto(TT)>; id : auto(K)) : int {
 }
 
 // ===== Transactions =====
+
 // DuckDB has no savepoints, and a failed nested BEGIN ABORTS the ambient transaction —
 // so nesting is tracked on the runner (TxnState heap cell shared by runner copies):
 // only depth 0 emits BEGIN/COMMIT/ROLLBACK, inner scopes join the outer one.
@@ -927,8 +926,7 @@ def in_transaction(db : SqlRunner) : bool {
 }
 
 def private txn_state(db : SqlRunner) : TxnState? {
-    // interior mutability: the field's declared type is mutable; only the runner
-    // handle's const flows onto it, so the strip is not an optimizer lie
+    // interior mutability: txn's declared type is mutable and only the runner handle's const flows onto it, so this strip is not an optimizer lie
     return unsafe(reinterpret<TxnState? -const>(db.txn))
 }
 
@@ -938,10 +936,9 @@ def private txn_best_effort_rollback(db : SqlRunner) : void {
 }
 
 def with_transaction(db : SqlRunner; blk : block<() : void>) : void {
-    //! Wraps ``blk`` in a transaction; nested calls join the outer one (DuckDB has no
-    //! savepoints). ROLLBACK fires on early return (block ``return`` unwinds through
-    //! ``finally``); a panic skips ``finally`` by design — the open txn discards when
-    //! the connection closes.
+    //! Wraps ``blk`` in a transaction; nested calls join the outer one (DuckDB has no savepoints).
+    //! ROLLBACK fires on early return (block ``return`` unwinds through ``finally``); a panic skips
+    //! ``finally`` by design — the open txn is discarded when the connection closes.
     var ts = txn_state(db)
     let depth = ts.depth
     if (depth == 0) {
@@ -997,6 +994,7 @@ def try_transaction(db : SqlRunner; blk : block<() : void>) : SqlError {
 }
 
 // ===== [sql_function] install loop — replay the neutral daslib/sql_boost queue =====
+
 // The annotation lives in daslib/sql_boost (provider-neutral, type-erased queue); the
 // SqlFnTag marshaling contract is shared with src/dasDUCKDB.userfn.cpp. `directonly`
 // has no DuckDB equivalent — ignored at install.
