@@ -27,7 +27,7 @@ void Module_dasDUCKDB::initMain() {
         // duckdb_boost owns that distinction, the raw binding just exposes string#.
         if ( pfn->result->isPointer() && pfn->result->firstType &&
                 pfn->result->firstType->baseType==Type::tUInt8 ) {
-            pfn->result = new TypeDecl(Type::tString);
+            pfn->result = new TypeDecl(Type::tString, pfn->at);
             pfn->result->constant = true;
             pfn->result->temporary = true;
             pfn->unsafeOperation = true;
