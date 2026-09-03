@@ -2,7 +2,6 @@
 
 #include "daScript/ast/ast.h"
 #include "daScript/ast/ast_interop.h"
-#include "daScript/ast/ast_typefactory_bind.h"
 #include "daScript/ast/ast_handle.h"
 #include "daScript/simulate/bind_enum.h"
 
@@ -31,16 +30,6 @@ void Module_dasDUCKDB::initMain() {
             pfn->result->constant = true;
             pfn->result->temporary = true;
             pfn->unsafeOperation = true;
-        }
-        // fixup module functions, so that there is a string cast
-        bool anyString = false;
-        for ( auto & arg : pfn->arguments ) {
-            if ( arg->type->isString() && !arg->type->ref ) {
-                anyString = true;
-            }
-        }
-        if ( anyString ) {
-            pfn->needStringCast = true;
         }
     }
 }
