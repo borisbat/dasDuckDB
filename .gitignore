@@ -29,3 +29,7 @@ _smoke_*.das
 duckdb.dll
 libduckdb.so
 libduckdb.dylib
+
+# daslang writes these beside the descriptor and under the cwd on every run
+.das_module.manifest
+.jitted_scripts/

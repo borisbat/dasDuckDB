@@ -10,4 +10,5 @@ def initialize(project_path : string) {
     for (path in duckdb_paths) {
         register_native_path("duckdb", "{path}", "{project_path}/daslib/{path}.das")
     }
+    register_module_group("sql_provider", "duckdb/duckdb_provider")
 }

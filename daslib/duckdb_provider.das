@@ -18,8 +18,8 @@ require daslib/templates_boost
 //! DuckDB's `SqlProviderInfo` registration shim — the lean bridge between the raw
 //! `duckdb` C binding and the neutral registry in `daslib/sql_provider`. Deliberately
 //! does NOT require `duckdb/duckdb_boost`: `daslib/sql_boost` pulls this file into
-//! every consulting macro context via `require ?duckdb`, and requiring the boost
-//! here would cycle. Runtime surface (SqlRunner, exec/query, runner helpers) lives
+//! every consulting macro context as a member of the `sql_provider` group, and
+//! requiring the boost here would cycle. Runtime surface (SqlRunner, exec/query, runner helpers) lives
 //! in `duckdb/duckdb_boost`.
 
 def duckdb_sql_type(t : SqlType) : string {
@@ -133,10 +133,10 @@ def private _duckdb_render_json_extract(target : string; jsonPath : string) : st
 
 def private _duckdb_quote_id(id : string) : string => sql_quote_id(id)
 
-def register_duckdb_provider {
-    //! Registers the duckdb `SqlProviderInfo` entry in the CURRENT macro context.
-    //! Reached via `sql_register_present_providers` (daslib/sql_boost) from each
-    //! consulting macro module's own `[_macro]`.
+def register_provider {
+    //! The `sql_provider` group entry: registers the duckdb `SqlProviderInfo` in the
+    //! CURRENT macro context. Reached through `sql_register_present_providers`
+    //! (daslib/sql_boost) from each consulting macro module's own `[_macro]`.
     var info = SqlProviderInfo(
         name = "duckdb",
         runnerModule = "duckdb_boost",
