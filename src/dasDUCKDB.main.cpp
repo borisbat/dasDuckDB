@@ -12,6 +12,7 @@
 namespace das {
 
 void Module_dasDUCKDB::initMain() {
+    registerModuleGroupMember("sql_provider", "duckdb/duckdb_provider");
 
     addExtern<DAS_BIND_FUN(duckdb_register_das_function)>(*this,lib,"duckdb_register_das_function",
         SideEffects::worstDefault, "duckdb_register_das_function")

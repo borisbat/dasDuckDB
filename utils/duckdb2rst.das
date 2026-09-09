@@ -36,7 +36,7 @@ def document_module_duckdb_boost() {
 def document_module_duckdb_provider() {
     var mod = find_module("duckdb_provider")
     var groups <- array<DocGroup>(
-        group_by_regex("Registration", mod, %regex~^register_duckdb_provider$%%),
+        group_by_regex("Registration", mod, %regex~^register_provider$%%),
         group_by_regex("Dialect helpers", mod, %regex~^(duckdb_sql_type|duckdb_decl_to_sql_type)$%%),
         group_by_regex("Schema introspection", mod, %regex~^duckdb_read_table_info$%%),
         hide_group(group_by_regex("Internal", mod, %regex~^(_|priv_).*%%))

@@ -1,7 +1,8 @@
 DuckDB's entry in the neutral SQL provider registry (``daslib/sql_provider``) —
-the compile-time half of the provider. ``register_duckdb_provider`` is called by
-``sql_register_present_providers`` (from ``daslib/sql_boost``) in every macro
-context that analyzes ``_sql`` chains; the entry carries the ``DuckStmt?``
+the compile-time half of the provider. The module joins the ``sql_provider`` group
+from its descriptor, and ``register_provider`` is the group entry that
+``sql_register_present_providers`` (from ``daslib/sql_boost``) calls in every macro
+context that analyzes ``_sql`` chains. The entry carries the ``DuckStmt?``
 statement-type factories the macros splice into emitted bind/reader blocks, the
 dialect hooks (``?`` placeholders, ``json_extract_string`` for ``@sql_json``
 descent — DuckDB's plain ``json_extract`` returns a typed JSON value that breaks
