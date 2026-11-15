@@ -112,7 +112,7 @@ def open_duckdb(path : string) : SqlRunner {
     if (r |> is_err) {
         panic(r |> unwrap_err)
     }
-    return <- r._value
+    return move_unwrap(r)
 }
 
 def with_duckdb(path : string; blk : block<(db : SqlRunner) : void>) : void {
@@ -253,8 +253,8 @@ def sql_bind_to_stmt(var stmt : DuckStmt?; idx : int; v : array<uint8>) : void {
 def sql_bind_to_stmt(var stmt : DuckStmt?; idx : int; v : $Option < auto(TT) >) : void {
     //! ``some(x)`` recurses on ``x`` (which routes through the user's
     //! ``_::sql_bind`` adapter for non-primitive ``T``); ``none`` binds NULL.
-    if (v._has_value) {
-        sql_bind_to_stmt(stmt, idx, v._value)
+    if (is_some(v)) {
+        sql_bind_to_stmt(stmt, idx, v as some)
     } else {
         duckdb_bind_null(stmt.stmt, uint64(idx))
     }
@@ -419,7 +419,7 @@ def run_select(db : SqlRunner; sql : string; bind_blk : block<(var stmt : DuckSt
     if (r |> is_err) {
         panic(r |> unwrap_err)
     }
-    return <- r._value
+    return move_unwrap(r)
 }
 
 def try_run_select_one(db : SqlRunner; sql : string; bind_blk : block<(var stmt : DuckStmt?) : void>; row_blk : block<(var stmt : DuckStmt?) : auto(TT)>) : Result<TT -const -#, string> {
@@ -433,7 +433,7 @@ def run_select_one(db : SqlRunner; sql : string; bind_blk : block<(var stmt : Du
     if (r |> is_err) {
         panic(r |> unwrap_err)
     }
-    return <- r._value
+    return move_unwrap(r)
 }
 
 def try_run_select_one_opt(db : SqlRunner; sql : string; bind_blk : block<(var stmt : DuckStmt?) : void>; row_blk : block<(var stmt : DuckStmt?) : auto(TT)>) : Result<Option<TT -const -#>, string> {
@@ -447,7 +447,7 @@ def run_select_one_opt(db : SqlRunner; sql : string; bind_blk : block<(var stmt 
     if (r |> is_err) {
         panic(r |> unwrap_err)
     }
-    return <- r._value
+    return move_unwrap(r)
 }
 
 def run_each_select(db : SqlRunner; sql : string;
@@ -476,7 +476,7 @@ def run_each_select(db : SqlRunner; sql : string;
     if (rows |> is_err) {
         panic(rows |> unwrap_err)
     }
-    var data <- rows._value
+    var data <- move_unwrap(rows)
     return <- generator<TT -const -#> capture(<- data) {
         for (i in range(length(data))) {
             static_if (typeinfo can_copy(default<TT -const -#>)) {
@@ -524,7 +524,7 @@ def run_dml_returning(db : SqlRunner; sql : string;
     if (r |> is_err) {
         panic(r |> unwrap_err)
     }
-    return <- r._value
+    return move_unwrap(r)
 }
 
 // ===== select_from as a plain function (whole-table read outside `_sql` chains) =====
@@ -551,7 +551,7 @@ def select_from(db : SqlRunner; t : type<auto(TT)>) : array<TT -const -#> {
     if (r |> is_err) {
         panic(r |> unwrap_err)
     }
-    return <- r._value
+    return move_unwrap(r)
 }
 
 // ===== User-facing CRUD over [sql_table] structs =====
@@ -693,7 +693,7 @@ def try_check_schema(db : SqlRunner; t : type<auto(TT)>) : SqlError {
     let table_name = _::_sql_table_name(default<TT>)
     var got_result <- duckdb_read_table_info(db.conn, db.schema_name, table_name)
     if (got_result |> is_err) return some(got_result |> unwrap_err)
-    let got <- got_result._value
+    let got <- move_unwrap(got_result)
     if (empty(got)) return some("check_schema: table \"{table_name}\" not found in DB.")
     if (length(want) != length(got)) return some("check_schema: \"{table_name}\" column count mismatch — struct has {length(want)} field(s), DB has {length(got)} column(s).")
     var by_name : table<string; int>
