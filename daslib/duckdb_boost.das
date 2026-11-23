@@ -760,7 +760,7 @@ def try_insert(db : SqlRunner; row : auto(TT)) : Result<int64, string> {
             _::_sql_bind_row(stmt, row, !pk_unset)
         }, "insert")
         if (r |> is_err) return err(r |> unwrap_err, type<int64>)
-        return ok(int64(0), type<string>)
+        return ok(0l, type<string>)
     }
     let sql = "{base_sql} RETURNING {sql_quote_id(pk_name)}"
     return <- db |> try_one_row(sql, $(var stmt : DuckStmt?) {
@@ -793,7 +793,7 @@ def try_insert(db : SqlRunner; row : auto(TT); name : string) : Result<int64, st
             _::_sql_bind_row(stmt, row, !pk_unset)
         }, "insert")
         if (r |> is_err) return err(r |> unwrap_err, type<int64>)
-        return ok(int64(0), type<string>)
+        return ok(0l, type<string>)
     }
     let sql = "{base_sql} RETURNING {sql_quote_id(pk_name)}"
     return <- db |> try_one_row(sql, $(var stmt : DuckStmt?) {
@@ -815,7 +815,7 @@ def insert(db : SqlRunner; row : auto(TT); name : string) : int64 {
 def try_insert(db : SqlRunner; rows : array<auto(TT)>) : Result<int64, string> {
     //! Batched INSERT inside a single transaction (joins an ambient one — DuckDB has
     //! no savepoints). All rows must agree on PK presence. ``Ok(last pk)`` on success.
-    if (empty(rows)) return ok(int64(0), type<string>)
+    if (empty(rows)) return ok(0l, type<string>)
     let pk_unset = _::_sql_pk_is_unset(rows[0])
     for (i in 1..length(rows)) {
         if (_::_sql_pk_is_unset(rows[i]) != pk_unset) return err("insert: rows mix PK-set and PK-unset (row 0 vs row {i}); partition the array before calling insert", type<int64>)
@@ -825,7 +825,7 @@ def try_insert(db : SqlRunner; rows : array<auto(TT)>) : Result<int64, string> {
         let be = db |> try_exec("BEGIN TRANSACTION")
         if (be |> is_some) return err(be |> unwrap, type<int64>)
     }
-    var last_id = int64(0)
+    var last_id = 0l
     for (row in rows) {
         let r = db |> try_insert(row)
         if (r |> is_err) {
